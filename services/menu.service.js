@@ -58,29 +58,32 @@ module.exports = {
             });
             question.save()
                     .then((result)=>{
-                        res.send(result);
+                            if(req.body.type==1)
+                            {
+                                req.body.answers.forEach(element => {
+                                    const answers = new Answers({  
+                                        option : element.option,
+                                        is_correct : element.is_correct,
+                                        question_id: question._id   
+                                        });
+                                    answers.save()
+                                            .then((result)=>{
+                                                res.send(result) //set headers error
+                                            })
+                                            .catch((error)=>{
+                                                console.log(error)
+                                            })
+                                });
+                                    }
+                            else
+                            {
+                                res.send(result);
+                            }
+                        
                     })
                     .catch((error)=>{
                         res.send(error);
                     });
-            
-            if(req.body.type==1)
-            {
-                req.body.answers.forEach(element => {
-                    const answers = new Answers({
-                        option : element.option,
-                        is_correct : element.is_correct,
-                        question_id: question._id   
-                        });
-                    answers.save()
-                            .then((result)=>{
-                                // res.send(result)
-                            })
-                            .catch((error)=>{
-                                console.log(error)
-                            })
-                });
-            }
     },
 
     //questions which have mcqs
