@@ -14,10 +14,9 @@ const questionSchema = new Schema({
         type: String,
         default:null
     },
-    answers: [
+    answers:[
         { type: Schema.Types.ObjectId, ref: 'Answer' }
-      ]
-
+    ]
 },
 {
     timestamps:true

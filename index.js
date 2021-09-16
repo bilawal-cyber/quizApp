@@ -9,5 +9,4 @@ app.use(cors())
 
 const menu = require('./routes/menu')
 app.use('/api', menu)
-
 module.exports = app

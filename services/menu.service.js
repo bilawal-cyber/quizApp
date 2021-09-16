@@ -1,4 +1,3 @@
-const express = require('express')
 const  Mongoose  = require("mongoose");
 const User = require('../models/user');
 const Question = require('../models/questions');
@@ -19,14 +18,13 @@ module.exports = {
 
 
 
-    getMenu: (req, res) => {
+    getQuestions: (req, res) => {
         Question.
-        find({ _id: '6139d1e7f9a36ba93d2106a4' }).
-        populate('Answers').
+        findOne({ _id: '6143d0a71834fdc26dec89dd' }).
+        populate('answers').
         exec(function (err, user) {
-            console.log(err,'error')
+            console.log(err)
                 res.send(user)
-          // prints "The author is Ian Fleming"
         });
     },
 
@@ -56,51 +54,22 @@ module.exports = {
                 question : req.body.question,
                 correct_answer : req.body.correct_answer,
             });
-            question.save()
-                    .then((result)=>{
+           
                             if(req.body.type==1)
                             {
                                 req.body.answers.forEach(element => {
                                     const answers = new Answers({  
                                         option : element.option,
-                                        is_correct : element.is_correct,
-                                        question_id: question._id   
+                                        is_correct : element.is_correct,   
                                         });
                                     answers.save()
-                                            .then((result)=>{
-                                                res.send(result) //set headers error
-                                            })
-                                            .catch((error)=>{
-                                                console.log(error)
-                                            })
-                                });
+                                            question.answers.push(answers)
+                                })
+                            question.save()
                                     }
                             else
                             {
                                 res.send(result);
                             }
-                        
-                    })
-                    .catch((error)=>{
-                        res.send(error);
-                    });
     },
-
-    //questions which have mcqs
-    // addMcqAns :(req, res) => {
-
-    //     const answers = new Answers({
-    //         option : req.body.option,
-    //         is_correct : req.body.is_correct,
-    //         question_id : req.body.question_id
-    //     });
-    //     answers.save()
-    //             .then((result)=>{
-    //                 res.send(result);
-    //             })
-    //             .catch((error)=>{
-    //                 res.send(error);
-    //             });
-        
-    // }
 }

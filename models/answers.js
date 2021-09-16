@@ -2,10 +2,6 @@ const  Mongoose  = require("mongoose");
 const Schema = Mongoose.Schema;
 
 const answerSchema = new Schema({
-    question_id : {
-        type : Schema.ObjectId,
-        ref :  'Question'
-    },
     option : {
         type: String,
         required : true,
