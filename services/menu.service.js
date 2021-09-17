@@ -48,28 +48,30 @@ module.exports = {
 
     //adding new questions
     addQuestions: (req, res) => {
-
+    
             const question = new Question({
                 type : req.body.type,
                 question : req.body.question,
                 correct_answer : req.body.correct_answer,
             });
            
-                            if(req.body.type==1)
-                            {
-                                req.body.answers.forEach(element => {
-                                    const answers = new Answers({  
-                                        option : element.option,
-                                        is_correct : element.is_correct,   
-                                        });
-                                    answers.save()
-                                            question.answers.push(answers)
-                                })
-                            question.save()
-                                    }
-                            else
-                            {
-                                res.send(result);
-                            }
+                            (req.body.type==1) ?
+                                module.exports.saveOptionsWithQuestion(req,question)
+                            :
+                                question.save()
+                            
+            res.status(200).send('save')
     },
+
+    saveOptionsWithQuestion:(req,question)=>{
+        req.body.answers.forEach(element => {
+            const answers = new Answers({  
+                option : element.option,
+                is_correct : element.is_correct,   
+                });
+            answers.save().then(res=>console.log(res)).catch(err=>console.log(err))
+             question.answers.push(answers)
+        })
+        question.save()
+    }
 }
