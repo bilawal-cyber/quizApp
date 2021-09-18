@@ -2,6 +2,7 @@ const  Mongoose  = require("mongoose");
 const User = require('../models/user');
 const Question = require('../models/questions');
 const Answers = require('../models/answers');
+const res = require("express/lib/response");
 
 
 
@@ -20,7 +21,7 @@ module.exports = {
 
     getQuestions: (req, res) => {
         Question.
-        findOne({ _id: '6143d0a71834fdc26dec89dd' }).
+        findOne({ _id: '61465a68e67051355cca7c1b' }).
         populate('answers').
         exec(function (err, user) {
             console.log(err)
@@ -55,23 +56,39 @@ module.exports = {
                 correct_answer : req.body.correct_answer,
             });
            
-                            (req.body.type==1) ?
-                                module.exports.saveOptionsWithQuestion(req,question)
+                            (req.body.type=="1") ?
+                                    (req.body.question && req.body.question.length!=0)?
+                                module.exports.saveOptionsWithQuestion(req,question,res)
+                                : res.status(400).send('question is required')
                             :
                                 question.save()
+                                .then((result)=>{
+                                    console.log(result)
+                                    res.status(200).send(result);
+                                })
+                                .catch((error)=>{
+                                    console.log(error)
+                                    res.status(400).send(error);
+                                });
                             
-            res.status(200).send('save')
+            // res.status(200).send('save')
     },
 
-    saveOptionsWithQuestion:(req,question)=>{
-        req.body.answers.forEach(element => {
-            const answers = new Answers({  
-                option : element.option,
-                is_correct : element.is_correct,   
-                });
-            answers.save().then(res=>console.log(res)).catch(err=>console.log(err))
-             question.answers.push(answers)
-        })
-        question.save()
+    saveOptionsWithQuestion:(req,question,res)=>{
+             if(req.body.answers.length>2){
+                req.body.answers.forEach(element => {
+                    const answers = new Answers({  
+                        option : element.option,
+                        is_correct : element.is_correct,   
+                        });
+                    answers.save()
+                     question.answers.push(answers)
+                })
+                question.save()
+             }else{
+                 res.status(400).send('atleast two options are required')
+             }
+            
+            
     }
 }

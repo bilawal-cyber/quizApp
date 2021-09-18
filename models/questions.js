@@ -12,10 +12,10 @@ const questionSchema = new Schema({
     },
     correct_answer : {
         type: String,
-        default:null
+        default:null,
     },
     answers:[
-        { type: Schema.Types.ObjectId, ref: 'Answer' }
+        { type: Schema.Types.ObjectId, ref: 'Answer', required:true }
     ]
 },
 {
