@@ -59,18 +59,17 @@ module.exports = {
                             (req.body.type=="1") ?
                                     (req.body.question && req.body.question.length!=0)?
                                 module.exports.saveOptionsWithQuestion(req,question,res)
-                                : res.status(400).send('question is required')
+                                : res.status(400).json('question is required')
                             :
                                 question.save()
                                 .then((result)=>{
                                     console.log(result)
-                                    res.status(200).send(result);
+                                    res.status(200).json(result);
                                 })
                                 .catch((error)=>{
                                     console.log(error)
-                                    res.status(400).send(error);
-                                });
-                            
+                                    res.status(400).json(error);
+                                });                            
             // res.status(200).send('save')
     },
 
