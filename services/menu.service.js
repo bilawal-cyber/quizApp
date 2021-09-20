@@ -19,10 +19,19 @@ module.exports = {
 
 
 
-    getQuestions: (req, res) => {
+    getQuestionsLevelOne: (req, res) => {
         Question.
-        findOne({ _id: '61465a68e67051355cca7c1b' }).
+        find({ type : '1'}).
         populate('answers').
+        exec(function (err, user) {
+            console.log(err)
+                res.send(user)
+        });
+    },
+
+    getQuestionsLevelTwo:(req,res)=>{
+        Question.
+        find({ type: '2' }).
         exec(function (err, user) {
             console.log(err)
                 res.send(user)
@@ -59,7 +68,9 @@ module.exports = {
                             (req.body.type=="1") ?
                                     (req.body.question && req.body.question.length!=0)?
                                 module.exports.saveOptionsWithQuestion(req,question,res)
-                                : res.status(400).json('question is required')
+                                : res.status(400).json({
+                                    levelOne:{question:'question is required'}
+                                })
                             :
                                 question.save()
                                 .then((result)=>{
@@ -68,13 +79,17 @@ module.exports = {
                                 })
                                 .catch((error)=>{
                                     console.log(error)
-                                    res.status(400).json(error);
+                                    res.status(400).json({
+                                        levelTwo:{
+                                            question:'question is required'
+                                        }
+                                    });
                                 });                            
             // res.status(200).send('save')
     },
 
     saveOptionsWithQuestion:(req,question,res)=>{
-             if(req.body.answers.length>2){
+             if(req.body.answers.length>=2){
                 req.body.answers.forEach(element => {
                     const answers = new Answers({  
                         option : element.option,
@@ -83,9 +98,9 @@ module.exports = {
                     answers.save()
                      question.answers.push(answers)
                 })
-                question.save()
+                question.save().then(()=>res.status(200).json('save'))
              }else{
-                 res.status(400).send('atleast two options are required')
+                 res.status(400).send({levelOne:{options:'atleast two options are required'}})
              }
             
             
