@@ -1,10 +1,8 @@
-const  Mongoose  = require("mongoose");
+const Mongoose = require("mongoose");
 const User = require('../models/user');
 const Question = require('../models/questions');
 const Answers = require('../models/answers');
 const res = require("express/lib/response");
-
-
 
 
 //connction string
@@ -12,43 +10,37 @@ const uri = "mongodb+srv://bilawal:extra1010@cluster0.guvx3.mongodb.net/quiz-app
 
 
 Mongoose.connect(uri,)
-.then((result)=>console.log('connected to db'))
-.catch((error)=>console.log(error));
+    .then((result) => console.log('connected to db'))
+    .catch((error) => console.log(error));
 
 module.exports = {
 
 
-
     getQuestionsLevelOne: (req, res) => {
-        Question.
-        find({ type : '1'}).
-        populate('answers').
-        exec(function (err, user) {
+        Question.find({type: '1'}).populate('answers').exec(function (err, user) {
             console.log(err)
-                res.send(user)
+            res.send(user)
         });
     },
 
-    getQuestionsLevelTwo:(req,res)=>{
-        Question.
-        find({ type: '2' }).
-        exec(function (err, user) {
+    getQuestionsLevelTwo: (req, res) => {
+        Question.find({type: '2'}).exec(function (err, user) {
             console.log(err)
-                res.send(user)
+            res.send(user)
         });
     },
 
     //register player
     addUser: (req, res) => {
         const user = new User({
-            email : req.body.email,
+            email: req.body.email,
         })
         user.save()
-            .then((result)=>{
+            .then((result) => {
                 console.log(result)
                 res.send(result);
             })
-            .catch((error)=>{
+            .catch((error) => {
                 console.log(error)
                 res.send(error);
             });
@@ -58,51 +50,66 @@ module.exports = {
 
     //adding new questions
     addQuestions: (req, res) => {
-    
-            const question = new Question({
-                type : req.body.type,
-                question : req.body.question,
-                correct_answer : req.body.correct_answer,
-            });
-           
-                            (req.body.type=="1") ?
-                                    (req.body.question && req.body.question.length!=0)?
-                                module.exports.saveOptionsWithQuestion(req,question,res)
-                                : res.status(400).json({
-                                    levelOne:{question:'question is required'}
-                                })
-                            :
-                                question.save()
-                                .then((result)=>{
-                                    console.log(result)
-                                    res.status(200).json(result);
-                                })
-                                .catch((error)=>{
-                                    console.log(error)
-                                    res.status(400).json({
-                                        levelTwo:{
-                                            question:'question is required'
-                                        }
-                                    });
-                                });                            
-            // res.status(200).send('save')
+
+        const IsValidRequest = IsValidCall(req.body);
+        if(!IsValidRequest.success){
+            res.status(400).send({
+                error: IsValidRequest.message
+            })
+        }
+
+        let question = new Question({
+            type: req.body.type,
+            question: req.body.question
+        });
+
+        if(req.body.type == "1" ) { // MCQs case
+            const questionWithAnswers = saveOptionsWithQuestion(req.body.answers, question, res);
+            questionWithAnswers.save().then(() => res.status(200).json('save'))
+        }
+        else{ // True/False case
+            question.correct_answer = req.body.correct_answer
+            question.save().then((result) =>  res.status(200).json('save'))
+        }
     },
 
-    saveOptionsWithQuestion:(req,question,res)=>{
-             if(req.body.answers.length>=2){
-                req.body.answers.forEach(element => {
-                    const answers = new Answers({  
-                        option : element.option,
-                        is_correct : element.is_correct,   
-                        });
-                    answers.save()
-                     question.answers.push(answers)
-                })
-                question.save().then(()=>res.status(200).json('save'))
-             }else{
-                 res.status(400).send({levelOne:{options:'atleast two options are required'}})
-             }
-            
-            
+   
+}
+
+function saveOptionsWithQuestion(answers, question, res){
+
+    answers.forEach(element => {
+        const option = new Answers({
+            option: element.option,
+            is_correct: element.is_correct,
+        });
+        option.save()
+        question.answers.push(option)
+    })
+    return question;
+}
+
+function IsValidCall(data){
+
+    let response = {
+        success: true,
+        message: []
     }
+
+    if(!data.question ){
+        response.success = false
+        response.message.push({name:'question',message:'question is required'})
+    }
+
+    if (data.type == "1" && data.answers.length < 2) {
+        response.success = false
+        response.message.push({name:'options',message:'atleast two options are required.'})
+    }
+
+    if( data.type == "1" &&  data.answers.filter(a => !a.option).length ){
+        response.success = false
+        response.message.push({name:'emptyOptions',message:'Options with empty values sent.'})
+    }
+
+    return response;
 }
