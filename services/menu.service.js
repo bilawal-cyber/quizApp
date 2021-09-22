@@ -17,18 +17,14 @@ Mongoose.connect(uri,)
 module.exports = {
 
 
-    getQuestionsLevelOne: (req, res) => {
-        Question.find({type: '1'}).populate('answers').exec(function (err, user) {
-            console.log(err)
-            res.send(user)
+    getQuestions : (req,res)=>{
+        Question.find({type: '1'}).populate('answers').exec(function (errOne, levelOne) {
+            Question.find({type: '2'}).exec(function (errTwo, levelTwo) {
+                // console.log(errOne,errTwo)
+                res.status(200).send({levelOne:levelOne,levelTwo:levelTwo})
+            });
         });
-    },
-
-    getQuestionsLevelTwo: (req, res) => {
-        Question.find({type: '2'}).exec(function (err, user) {
-            console.log(err)
-            res.send(user)
-        });
+        
     },
 
     //register player
@@ -39,11 +35,11 @@ module.exports = {
         user.save()
             .then((result) => {
                 console.log(result)
-                res.send(result);
+                res.status(200).json(result);
             })
             .catch((error) => {
                 console.log(error)
-                res.send(error);
+                res.status(400).json(error);
             });
 
     },
