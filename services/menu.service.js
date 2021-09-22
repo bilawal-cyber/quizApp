@@ -3,6 +3,7 @@ const User = require('../models/user');
 const Question = require('../models/questions');
 const Answers = require('../models/answers');
 const res = require("express/lib/response");
+const UserAnswers=require('../models/userAnswers');
 
 
 //connction string
@@ -72,6 +73,11 @@ module.exports = {
             question.save().then((result) =>  res.status(200).json('save'))
         }
     },
+
+    ///player api
+    saveUserAnswers:()=>{
+            new UserAnswers()
+    }
 
    
 }
