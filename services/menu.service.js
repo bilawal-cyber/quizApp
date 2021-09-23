@@ -18,31 +18,34 @@ module.exports = {
 
 
     getQuestions : (req,res)=>{
-        Question.find({type: '1'}).populate('answers').exec(function (errOne, levelOne) {
-            Question.find({type: '2'}).exec(function (errTwo, levelTwo) {
-                // console.log(errOne,errTwo)
+            Question.find().populate('answers').exec(function(err,questions){
+                console.log(err)
+                let levelOne = questions.filter((q)=>{
+                    return q.type === '1'
+                })
+                let levelTwo = questions.filter((q)=>{
+                    return q.type === '2'
+                })
                 res.status(200).send({levelOne:levelOne,levelTwo:levelTwo})
-            });
-        });
-        
+            })        
     },
 
     //register player
-    addUser: (req, res) => {
-        const user = new User({
-            email: req.body.email,
-        })
-        user.save()
-            .then((result) => {
-                console.log(result)
-                res.status(200).json(result);
-            })
-            .catch((error) => {
-                console.log(error)
-                res.status(400).json(error);
-            });
+    // addUser: (req, res) => {
+    //     const user = new User({
+    //         email: req.body.email,
+    //     })
+    //     user.save()
+    //         .then((result) => {
+    //             console.log(result)
+    //             res.status(200).json(result);
+    //         })
+    //         .catch((error) => {
+    //             console.log(error)
+    //             res.status(400).json(error);
+    //         });
 
-    },
+    // },
 
 
     //adding new questions
@@ -71,8 +74,8 @@ module.exports = {
     },
 
     ///player api
-    saveUserAnswers:()=>{
-            new UserAnswers()
+    saveUserAnswers:(req,res)=>{
+            
     }
 
    
