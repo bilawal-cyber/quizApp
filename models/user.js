@@ -6,7 +6,14 @@ const userSchema = new Schema({
         type: String,
         required: true,
         match: /.+\@.+\..+/,
-      }
+      },
+    userAnwers:[
+        {type: Schema.Types.ObjectId, ref: 'UserAnswer',}
+    ],
+    score:{
+        type : String,
+        default : null
+    }
 },
 {
     timestamps:true

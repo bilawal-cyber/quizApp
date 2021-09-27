@@ -75,7 +75,28 @@ module.exports = {
 
     ///player api
     saveUserAnswers:(req,res)=>{
-            
+        let user = new User({
+            email : req.body.email,
+            score : req.body.score
+        });
+        answersList=[]
+        req.body.responses.forEach(e=>{
+            const userAns =  new UserAnswers({
+                question_id : e.question_id,
+                answer_id : e.answer_id,
+                is_correct : e.is_correct
+            })
+            answersList.push(userAns)
+            user.userAnwers.push(userAns)
+        })
+        UserAnswers.insertMany(answersList,function (err, options){
+            if(err){
+                console.log(err)
+            }else{
+                console.log(options)
+            }
+        })
+        user.save().then(() => res.status(200).json('save'))
     }
 
    
@@ -83,13 +104,21 @@ module.exports = {
 
 function saveOptionsWithQuestion(answers, question, res){
 
+    answersList=[]
     answers.forEach(element => {
         const option = new Answers({
             option: element.option,
             is_correct: element.is_correct,
         });
-        option.save()
+        answersList.push(option)
         question.answers.push(option)
+    })
+    Answers.insertMany(answersList,function (err, options){
+        if(err){
+            console.log(err)
+        }else{
+            console.log(options)
+        }
     })
     return question;
 }
