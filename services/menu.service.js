@@ -3,7 +3,7 @@ const User = require('../models/user');
 const Question = require('../models/questions');
 const Answers = require('../models/answers');
 const res = require("express/lib/response");
-const UserAnswers=require('../models/userAnswers');
+const UserAnswers = require('../models/userAnswers');
 
 
 //connction string
@@ -17,42 +17,24 @@ Mongoose.connect(uri,)
 module.exports = {
 
 
-    getQuestions : (req,res)=>{
-            Question.find().populate('answers').exec(function(err,questions){
-                console.log(err)
-                let levelOne = questions.filter((q)=>{
-                    return q.type === '1'
-                })
-                let levelTwo = questions.filter((q)=>{
-                    return q.type === '2'
-                })
-                res.status(200).send({levelOne:levelOne,levelTwo:levelTwo})
-            })        
+    getQuestions: (req, res) => {
+        Question.find().populate('answers').exec(function (err, questions) {
+            // console.log(err)
+            let levelOne = questions.filter((q) => {
+                return q.type === '1'
+            })
+            let levelTwo = questions.filter((q) => {
+                return q.type === '2'
+            })
+            res.status(200).send({ levelOne: levelOne, levelTwo: levelTwo })
+        })
     },
-
-    //register player
-    // addUser: (req, res) => {
-    //     const user = new User({
-    //         email: req.body.email,
-    //     })
-    //     user.save()
-    //         .then((result) => {
-    //             console.log(result)
-    //             res.status(200).json(result);
-    //         })
-    //         .catch((error) => {
-    //             console.log(error)
-    //             res.status(400).json(error);
-    //         });
-
-    // },
-
 
     //adding new questions
     addQuestions: (req, res) => {
 
         const IsValidRequest = IsValidCall(req.body);
-        if(!IsValidRequest.success){
+        if (!IsValidRequest.success) {
             res.status(400).send({
                 error: IsValidRequest.message
             })
@@ -63,48 +45,44 @@ module.exports = {
             question: req.body.question
         });
 
-        if(req.body.type == "1" ) { // MCQs case
+        if (req.body.type == "1") { // MCQs case
             const questionWithAnswers = saveOptionsWithQuestion(req.body.answers, question, res);
             questionWithAnswers.save().then(() => res.status(200).json('save'))
         }
-        else{ // True/False case
+        else { // True/False case
             question.correct_answer = req.body.correct_answer
-            question.save().then((result) =>  res.status(200).json('save'))
+            question.save().then((result) => res.status(200).json('save'))
         }
     },
 
     ///player api
-    saveUserAnswers:(req,res)=>{
+    saveUserAnswers: (req, res) => {
         let user = new User({
-            email : req.body.email,
-            score : req.body.score
+            email: req.body.email,
+            score: req.body.score
         });
-        answersList=[]
-        req.body.responses.forEach(e=>{
-            const userAns =  new UserAnswers({
-                question_id : e.question_id,
-                answer_id : e.answer_id,
-                is_correct : e.is_correct
+        answersList = []
+        req.body.responses.forEach(e => {
+            const userAns = new UserAnswers({
+                question_id: e.question_id,
+                answer_id: e.answer_id,
+                is_correct: e.is_correct
             })
             answersList.push(userAns)
             user.userAnwers.push(userAns)
         })
-        UserAnswers.insertMany(answersList,function (err, options){
-            if(err){
-                console.log(err)
-            }else{
-                console.log(options)
-            }
-        })
-        user.save().then(() => res.status(200).json('save'))
-    }
-
-   
+        try{
+            UserAnswers.insertMany(answersList).then(res=>console.log(res))
+        }catch(err){
+            console.log(err)
+        }
+        user.save().then(() => getUserData(user.email,res)).catch((err)=>res.status(400).send(err))
+    },
 }
 
-function saveOptionsWithQuestion(answers, question, res){
+function saveOptionsWithQuestion(answers, question, res) {
 
-    answersList=[]
+    answersList = []
     answers.forEach(element => {
         const option = new Answers({
             option: element.option,
@@ -113,37 +91,54 @@ function saveOptionsWithQuestion(answers, question, res){
         answersList.push(option)
         question.answers.push(option)
     })
-    Answers.insertMany(answersList,function (err, options){
-        if(err){
+    Answers.insertMany(answersList, function (err, options) {
+        if (err) {
             console.log(err)
-        }else{
+        } else {
             console.log(options)
         }
     })
     return question;
 }
 
-function IsValidCall(data){
+function IsValidCall(data) {
 
     let response = {
         success: true,
         message: []
     }
 
-    if(!data.question ){
+    if (!data.question) {
         response.success = false
-        response.message.push({name:'question',message:'question is required'})
+        response.message.push({ name: 'question', message: 'question is required' })
     }
 
     if (data.type == "1" && data.answers.length < 2) {
         response.success = false
-        response.message.push({name:'options',message:'atleast two options are required.'})
+        response.message.push({ name: 'options', message: 'atleast two options are required.' })
     }
 
-    if( data.type == "1" &&  data.answers.filter(a => !a.option).length ){
+    if (data.type == "1" && data.answers.filter(a => !a.option).length) {
         response.success = false
-        response.message.push({name:'emptyOptions',message:'Options with empty values sent.'})
+        response.message.push({ name: 'emptyOptions', message: 'Options with empty values sent.' })
     }
 
     return response;
+}
+function  getUserData(email, res){
+    User.find({ emial: email })
+        .populate(
+            {
+                path: 'userAnwers',
+                populate:
+                {
+                    path: 'answer_id question_id',
+                    select: 'question option'
+                },
+            }
+        )
+        .exec(function (err, user) {
+            console.log(err)
+            res.status(200).send(user)
+        })
 }
