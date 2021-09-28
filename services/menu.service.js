@@ -126,7 +126,7 @@ function IsValidCall(data) {
     return response;
 }
 function  getUserData(email, res){
-    User.find({ emial: email })
+    User.find({ email: email })
         .populate(
             {
                 path: 'userAnwers',
