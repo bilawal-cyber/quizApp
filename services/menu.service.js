@@ -78,6 +78,9 @@ module.exports = {
         }
         user.save().then(() => getUserData(user.email,res)).catch((err)=>res.status(400).send(err))
     },
+    getUserData : (req,res) => {
+            getUserData("8@gmail.com",res)
+    }
 }
 
 function saveOptionsWithQuestion(answers, question, res) {
