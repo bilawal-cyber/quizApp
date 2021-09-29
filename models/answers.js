@@ -7,8 +7,7 @@ const answerSchema = new Schema({
         required : true,
      },
     is_correct:{
-        type:String,
-        enum:[true,false],
+        type:Boolean,
         default: false,
         required:true
     }

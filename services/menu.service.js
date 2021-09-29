@@ -71,15 +71,15 @@ module.exports = {
             answersList.push(userAns)
             user.userAnwers.push(userAns)
         })
-        try{
-            UserAnswers.insertMany(answersList).then(res=>console.log(res))
-        }catch(err){
+        try {
+            UserAnswers.insertMany(answersList).then(res => console.log(res))
+        } catch (err) {
             console.log(err)
         }
-        user.save().then(() => getUserData(user.email,res)).catch((err)=>res.status(400).send(err))
+        user.save().then(() => getUserData(user.email, res)).catch((err) => res.status(400).send(err))
     },
-    getUserData : (req,res) => {
-            getUserData("8@gmail.com",res)
+    getUserData: (req, res) => {
+        getUserData(req.query.email, res)
     }
 }
 
@@ -128,7 +128,7 @@ function IsValidCall(data) {
 
     return response;
 }
-function  getUserData(email, res){
+function getUserData(email, res) {
     User.find({ email: email })
         .populate(
             {
@@ -136,12 +136,13 @@ function  getUserData(email, res){
                 populate:
                 {
                     path: 'answer_id question_id',
-                    select: 'question option'
+                    select: 'question correct_answer option'
                 },
             }
         )
         .exec(function (err, user) {
-            console.log(err)
-            res.status(200).send(user)
+            (err) ? console.log(err) : ''
+            if (user.length) res.status(200).send(user); else res.status(400).send({ emailNotExist: 'email not exist. please take quiz' })
+
         })
 }
