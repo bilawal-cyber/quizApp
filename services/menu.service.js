@@ -65,8 +65,9 @@ module.exports = {
         req.body.responses.forEach(e => {
             const userAns = new UserAnswers({
                 question_id: e.question_id,
-                answer_id: e.answer_id,
-                is_correct: e.is_correct
+                selected: e.selected,
+                is_correct: e.is_correct,
+                notSelected:e.notSelected
             })
             answersList.push(userAns)
             user.userAnwers.push(userAns)
@@ -135,7 +136,7 @@ function getUserData(email, res) {
                 path: 'userAnwers',
                 populate:
                 {
-                    path: 'answer_id question_id',
+                    path: 'selected question_id notSelected',
                     select: 'question correct_answer option'
                 },
             }
