@@ -6,10 +6,6 @@ const answerSchema = new Schema({
 
     selected:{ type: Schema.Types.ObjectId, ref: 'Answer', default:null },
 
-    notSelected:[
-        {type: Schema.Types.ObjectId, ref: 'Answer', default:null}
-    ],
-
     is_correct:{
         type:Boolean,
         required:true

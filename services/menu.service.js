@@ -67,7 +67,6 @@ module.exports = {
                 question_id: e.question_id,
                 selected: e.selected,
                 is_correct: e.is_correct,
-                notSelected:e.notSelected
             })
             answersList.push(userAns)
             user.userAnwers.push(userAns)
@@ -136,7 +135,7 @@ function getUserData(email, res) {
                 path: 'userAnwers',
                 populate:
                 {
-                    path: 'selected question_id notSelected',
+                    path: 'selected question_id',
                     select: 'question correct_answer option'
                 },
             }
