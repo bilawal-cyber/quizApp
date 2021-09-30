@@ -19,14 +19,19 @@ module.exports = {
 
     getQuestions: (req, res) => {
         Question.find().populate('answers').exec(function (err, questions) {
-            // console.log(err)
-            let levelOne = questions.filter((q) => {
-                return q.type === '1'
-            })
-            let levelTwo = questions.filter((q) => {
-                return q.type === '2'
-            })
-            res.status(200).send({ levelOne: levelOne, levelTwo: levelTwo })
+            // if(questions.filter(q=>q.type==='1')){
+                    // levelOne.map((q) => {
+                //     let answers = q.answers.map((a) => {
+                //       return { ...a, userAns: null };  //adding user Answer
+                //     });
+                //     return { ...q, answers };
+                //   });
+            // }
+            let levelOne = questions.filter(q=>q.type==='1')
+            let levelTwo = questions.filter(q=>q.type==='2')
+           
+            
+            res.status(200).json({ levelOne: levelOne, levelTwo: levelTwo })
         })
     },
 
