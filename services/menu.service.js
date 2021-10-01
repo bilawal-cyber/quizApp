@@ -70,7 +70,7 @@ module.exports = {
         req.body.responses.forEach(e => {
             const userAns = new UserAnswers({
                 question_id: e.question_id,
-                selected: e.selected,
+                userAns: e.userAns,
                 is_correct: e.is_correct,
             })
             answersList.push(userAns)
@@ -140,7 +140,7 @@ function getUserData(email, res) {
                 path: 'userAnwers',
                 populate:
                 {
-                    path: 'selected question_id',
+                    path: 'userAns question_id',
                     select: 'question correct_answer option'
                 },
             }

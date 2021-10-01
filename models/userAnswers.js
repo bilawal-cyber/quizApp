@@ -4,7 +4,7 @@ const Schema = Mongoose.Schema;
 const answerSchema = new Schema({
     question_id:{ type: Schema.Types.ObjectId, ref: 'Question', required:true },
 
-    selected:{ type: Schema.Types.ObjectId, ref: 'Answer', default:null },
+    userAns:{ type: Schema.Types.ObjectId, ref: 'Answer', default:null },
 
     is_correct:{
         type:Boolean,
