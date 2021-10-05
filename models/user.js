@@ -5,8 +5,6 @@ const userSchema = new Schema({
     email: { 
         type: String,
         required: true,
-        match: /.+\@.+\..+/,
-        unique: true
       },
     userAnwers:[
         {type: Schema.Types.ObjectId, ref: 'UserAnswer',}

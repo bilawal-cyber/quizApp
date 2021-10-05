@@ -7,7 +7,7 @@ const UserAnswers = require('../models/userAnswers');
 
 
 //connction string
-const uri = "mongodb+srv://bilawal:extra1010@cluster0.guvx3.mongodb.net/quiz-application?retryWrites=true&w=majority";
+const uri = "mongodb+srv://bilawal:extra1010@cluster0.wa9pr.mongodb.net/quiz-front-end?retryWrites=true&w=majority";
 
 
 Mongoose.connect(uri,)
@@ -81,10 +81,17 @@ module.exports = {
         } catch (err) {
             console.log(err)
         }
-        user.save().then(() => getUserData(user.email, res)).catch((err) => res.status(400).send(err))
+        user.save().then(() => getUserData(user.id, res)).catch((err) => res.status(400).send(err))
     },
     getUserData: (req, res) => {
-        getUserData(req.query.email, res)
+        getUserData(req.query.id, res)
+    },
+    userAllRecords:(req,res) => {
+        User.find({ email: req.query.email })
+        .exec(function (err, user) {
+            (err) ? console.log(err) : ''
+            if (user.length) res.status(200).send(user); else res.status(400).send({ emailNotExist: 'email not exist. please take quiz' })
+        })
     }
 }
 
@@ -133,15 +140,15 @@ function IsValidCall(data) {
 
     return response;
 }
-function getUserData(email, res) {
-    User.find({ email: email })
+function getUserData(id, res) {
+    User.find({ _id: id })
         .populate(
             {
                 path: 'userAnwers',
                 populate:
                 {
                     path: 'userAns question_id',
-                    select: 'question correct_answer option'
+                    select: 'question option'
                 },
             }
         )
