@@ -81,7 +81,7 @@ module.exports = {
         } catch (err) {
             console.log(err)
         }
-        user.save().then((res) => res.status(200).send({message:'success'})).catch((err) => res.status(400).send(err))
+        user.save().then(() => res.status(200).send({message:'success'})).catch((err) => res.status(400).send(err))
     },
     getUserData: (req, res) => {
         getUserData(req.query.id, res)
