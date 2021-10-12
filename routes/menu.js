@@ -10,6 +10,8 @@ router.post('/createQuestion',menuService.addQuestions)
 router.post('/user/Answers',menuService.saveUserAnswers)
 router.get('/userData',menuService.getUserData)
 router.get('/user/all/records',menuService.userAllRecords)
+router.get('/del/options',menuService.deleteOptions)
+router.get('/del/question',menuService.delQuestion)
 
 
 

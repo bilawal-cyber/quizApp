@@ -109,31 +109,62 @@ module.exports = {
                 if (user.length) res.status(200).send(user); else res.status(400).send({ emailNotExist: 'email not exist. please take quiz' })
             })
     },
-    updateQuestion: (req, res) => {
-        const IsValidRequest = IsValidCall(req.body);
-        if (!IsValidRequest.success) {
-            res.status(400).send({
-                error: IsValidRequest.message
+    updateQuestion: async(req, res) => {
+            let question=req.body;
+        const que =await Question.findById(question._id)
+        if(question.type==='1'){
+            if(question.is_change){
+                que.question=question.question
+            }
+            answersList = []
+            question.answers.forEach(a=>{
+                if(a.is_change){
+                  Answers.findOneAndUpdate({_id:a._id},{$set:{option:a.option}},function(err,doc){
+                      if(err){
+                          console.log('updating options err',err)
+                      }
+                  })
+                }
+                if(a.is_new){
+                  const option = new Answers({
+                      option: a.option,
+                      is_correct: a.is_correct,
+                  });
+                  answersList.push(option)
+                    que.answers.push(option._id)
+                }
             })
+            Answers.insertMany(answersList, function (err, options) {
+              if (err) {
+                  console.log(err)
+              } else {
+                  console.log(options)
+              }
+              que.save()
+              res.status(200).send({message:'succes'})
+          })
+        }else{
+            console.log(question.correct_answer)
+            que.question=question.question;
+            que.correct_answer=question.correct_answer;
+            que.save()
+            res.status(200).send({message:'success'})
         }
-
-         Question.updateOne({ _id: req.body._id }, { //update
-            type: req.body.type,
-            question: req.body.question
-        });
-        let question = new Question({
-            type: req.body.type,
-            question: req.body.question
-        });
-
-        if (req.body.type == "1") { // MCQs case
-            const questionWithAnswers = updateOptionsWithQuestion(req.body.answers, question, res);
-            questionWithAnswers.save().then(() => res.status(200).json('save'))
-        }
-        else { // True/False case
-            question.correct_answer = req.body.correct_answer
-            question.save().then((result) => res.status(200).json('save'))
-        }
+    },
+    deleteOptions:(req,res)=>{
+        // console.log(req.query._id)
+        Answers.deleteOne({ _id: req.query._id }, function (err,ans) {
+            if(err) console.log(err); else console.log("Successful deletion");
+            res.status(200).send(ans)      
+          });
+          Question.findOneAndUpdate({_id:req.query._id},{$pull:{answers:req.query._id}},function(err){
+            if(err){
+                console.log('err in del question answers array',err)
+            }
+          })
+    },
+    delQuestion:(req,res) =>{
+        console.log(req.query._id)
     }
 }
 
@@ -199,26 +230,4 @@ function getUserData(id, res) {
             if (user.length) res.status(200).send(user); else res.status(400).send({ emailNotExist: 'email not exist. please take quiz' })
 
         })
-}
-function updateOptionsWithQuestion(id, res) {
-    answersList = []
-    answers.forEach(element => {
-        const option = new Answers({
-            option: element.option,
-            is_correct: element.is_correct,
-        });
-        if (element._id) {
-            option._id = element._id
-        }
-        answersList.push(option)
-        question.answers.push(option)
-    })
-    Answers.insertMany(answersList, function (err, options) {
-        if (err) {
-            console.log(err)
-        } else {
-            console.log(options)
-        }
-    })
-    return question;
 }
