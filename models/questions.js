@@ -16,7 +16,11 @@ const questionSchema = new Schema({
     },
     answers:[
         { type: Schema.Types.ObjectId, ref: 'Answer', required:true }
-    ]
+    ],
+    is_active:{
+        type:Boolean,
+        default:true
+    }
 },
 {
     timestamps:true

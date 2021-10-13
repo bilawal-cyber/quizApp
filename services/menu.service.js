@@ -23,30 +23,40 @@ module.exports = {
                 if (err) {
                     console.log(err);
                 } else {
+                    result=result.filter(q=>q.is_active)
                     res.json(result);
                 }
             });
         } else {
             Question.find().populate('answers').exec(function (err, questions) {
-                // if(questions.filter(q=>q.type==='1')){
-                // levelOne.map((q) => {
-                //     let answers = q.answers.map((a) => {
-                //       return { ...a, userAns: null };  //adding user Answer
-                //     });
-                //     return { ...q, answers };
-                //   });
-                // }
-                let levelOne = questions.filter(q => q.type === '1')
-                let levelTwo = questions.filter(q => q.type === '2')
+                let levelOne = questions.filter(q => q.type === '1' && q.is_active)
+                let levelTwo = questions.filter(q => q.type === '2' && q.is_active)
 
 
+                levelOne.map(b => b.answers = b.answers.filter(c => c.is_active))
                 res.status(200).json({ levelOne: levelOne, levelTwo: levelTwo })
             })
         }
     },
+    getQuestionForResult : (req,res) =>{
+        Question.find().populate('answers').exec(function (err, questions) {
+            if(err){
+                console.log(err)
+            }
+            let levelOne = questions.filter(q => q.type === '1')
+            let levelTwo = questions.filter(q => q.type === '2')
+            console.log( {levelOne: levelOne, levelTwo: levelTwo })
+            res.status(200).send({ levelOne: levelOne, levelTwo: levelTwo })
+        })
+    },
     getSingleQuestion: (req, res) => {
         Question.find({ _id: req.query._id }).populate('answers').exec(function (err, question) {
-            res.status(200).json(question)
+            if(err){
+                console.log(err)
+            }else{
+                question[0].answers=question[0].answers.filter(a=>a.is_active)
+                res.status(200).json(question)
+            }
         })
     },
 
@@ -119,7 +129,7 @@ module.exports = {
             answersList = []
             question.answers.forEach(a=>{
                 if(a.is_change){
-                  Answers.findOneAndUpdate({_id:a._id},{$set:{option:a.option}},function(err,doc){
+                  Answers.findOneAndUpdate({_id:a._id},{option:a.option,is_correct:a.is_correct},function(err,doc){
                       if(err){
                           console.log('updating options err',err)
                       }
@@ -153,18 +163,23 @@ module.exports = {
     },
     deleteOptions:(req,res)=>{
         // console.log(req.query._id)
-        Answers.deleteOne({ _id: req.query._id }, function (err,ans) {
-            if(err) console.log(err); else console.log("Successful deletion");
-            res.status(200).send(ans)      
-          });
-          Question.findOneAndUpdate({_id:req.query._id},{$pull:{answers:req.query._id}},function(err){
+        Answers.findByIdAndUpdate(req.query._id,{is_active:false},function(err,docs){
             if(err){
-                console.log('err in del question answers array',err)
+                console.log(err)
+            }else{
+                res.status(200).send("deleted")
             }
-          })
+        })
     },
     delQuestion:(req,res) =>{
-        console.log(req.query._id)
+        Question.findByIdAndUpdate(req.query._id,{is_active:false},function(err,docs){
+            if(err){
+                console.log(err)
+            }else{
+                res.status(200).send({message:'success'})
+            }
+
+        })
     }
 }
 
@@ -228,6 +243,5 @@ function getUserData(id, res) {
         .exec(function (err, user) {
             (err) ? console.log(err) : ''
             if (user.length) res.status(200).send(user); else res.status(400).send({ emailNotExist: 'email not exist. please take quiz' })
-
         })
 }

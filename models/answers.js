@@ -10,6 +10,10 @@ const answerSchema = new Schema({
         type:Boolean,
         default: false,
         required:true
+    },
+    is_active:{
+        type:Boolean,
+        default:true
     }
 
     

@@ -12,6 +12,7 @@ router.get('/userData',menuService.getUserData)
 router.get('/user/all/records',menuService.userAllRecords)
 router.get('/del/options',menuService.deleteOptions)
 router.get('/del/question',menuService.delQuestion)
+router.get('/getQuestionsForResult',menuService.getQuestionForResult)
 
 
 
