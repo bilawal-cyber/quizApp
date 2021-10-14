@@ -60,6 +60,17 @@ module.exports = {
         })
     },
 
+    viewQusetion:(req,res) => {
+        const ans = UserAnswers.find({"question_id":req.query._id}).select("userAns").select("is_correct")
+        ans.exec(function(err,ans){
+            if(err){
+                console.log(err)
+            }else{
+                res.status(200).send(ans)
+            }
+        })
+    },
+
     //adding new questions
     addQuestions: (req, res) => {
 
