@@ -59,6 +59,11 @@ module.exports = {
             }
         })
     },
+    getAllUsers:async(req,res)=>{
+    let user=await User.distinct("email")
+        
+res.status(200).send(user)
+    },
 
     viewQusetion:(req,res) => {
         const ans = UserAnswers.find({"question_id":req.query._id}).select("userAns").select("is_correct")

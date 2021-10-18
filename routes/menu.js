@@ -15,6 +15,6 @@ router.get('/del/question',menuService.delQuestion)
 router.get('/getQuestionsForResult',menuService.getQuestionForResult)
 router.get('/view/question',menuService.viewQusetion)
 
-
+router.get('/all/users',menuService.getAllUsers)
 
 module.exports = router
