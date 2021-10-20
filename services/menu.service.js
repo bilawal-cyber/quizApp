@@ -39,13 +39,13 @@ module.exports = {
         }
     },
     getQuestionForResult : (req,res) =>{
-        Question.find().populate('answers').exec(function (err, questions) {
+        Question.find({}).populate('answers').exec(function (err, questions) {
             if(err){
                 console.log(err)
             }
             let levelOne = questions.filter(q => q.type === '1')
             let levelTwo = questions.filter(q => q.type === '2')
-            console.log( {levelOne: levelOne, levelTwo: levelTwo })
+            // console.log( {levelOne: levelOne, levelTwo: levelTwo })
             res.status(200).send({ levelOne: levelOne, levelTwo: levelTwo })
         })
     },
