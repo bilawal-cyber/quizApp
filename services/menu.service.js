@@ -4,6 +4,7 @@ const Question = require('../models/questions');
 const Answers = require('../models/answers');
 const res = require("express/lib/response");
 const UserAnswers = require('../models/userAnswers');
+var https = require('http');
 
 
 //connction string
@@ -15,6 +16,90 @@ Mongoose.connect(uri,)
     .catch((error) => console.log(error));
 
 module.exports = {
+
+//curl -XGET "http://localhost:9200/products/_search" -H 'Content-Type: application/json' -d'{  "query": {    "match_all": {}  }}'
+
+    getElasticData:(req,response)=>{
+
+
+        // jsonObject = JSON.stringify({
+        //     "message" : "The web of things is approaching, let do some tests to be ready!",
+        //     "name" : "Test message posted with node.js",
+        // });
+         
+        // // prepare the header
+        // var postheaders = {
+        //     'Content-Type' : 'application/json',
+        //     'Content-Length' : Buffer.byteLength(jsonObject, 'utf8')
+        // };
+         
+        // // the post options
+        // var optionspost = {
+        //     host : '18.219.47.64',
+        //     port : 80,
+        //     path : '/products/_doc',
+        //     method : 'POST',
+        //     headers : postheaders
+        // };
+         
+        // console.info('Options prepared:');
+        // console.info(optionspost);
+        // console.info('Do the POST call');
+         
+        // // do the POST call
+        // var reqPost = https.request(optionspost, function(res) {
+        //     console.log("statusCode: ", res.statusCode);
+        //     // uncomment it for header details
+        // //  console.log("headers: ", res.headers);
+         
+        //     res.on('data', function(d) {
+        //         console.info('POST result:\n');
+        //         process.stdout.write(d);
+        //         console.info('\n\nPOST completed');
+        //     });
+        // });
+         
+        // // write the json data
+        // reqPost.write(jsonObject);
+        // reqPost.end();
+        // reqPost.on('error', function(e) {
+        //     console.error(e);
+        // });
+
+
+
+
+
+
+        var optionsget = {
+            host : '18.219.47.64', // here only the domain name
+            // (no http/https !)
+            port : 80,
+            path : '/products/_search', // the rest of the url with parameters if needed
+            method : 'GET' // do GET
+        };
+         
+        console.info('Options prepared:');
+        console.info(optionsget);
+        console.info('Do the GET call');
+
+        var reqGet = https.request(optionsget, function(res) {
+            console.log("statusCode: ", res.statusCode);
+         
+         
+            res.on('data', function(d) {
+                process.stdout.write(d);
+                response.status(200).send(d)
+            });
+         
+        });
+         
+        reqGet.end();
+        reqGet.on('error', function(e) {
+            console.error(e);
+        });
+
+    },
 
 
     getQuestions: (req, res) => {

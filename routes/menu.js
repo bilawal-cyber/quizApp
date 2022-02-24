@@ -17,4 +17,6 @@ router.get('/view/question',menuService.viewQusetion)
 
 router.get('/all/users',menuService.getAllUsers)
 
+router.get('/elastci',menuService.getElasticData)
+
 module.exports = router
