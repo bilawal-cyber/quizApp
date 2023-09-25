@@ -8,7 +8,7 @@ var https = require('http');
 
 
 //connction string
-const uri = "mongodb+srv://bilawal:extra1010@cluster0.wa9pr.mongodb.net/quiz-front-end?retryWrites=true&w=majority";
+const uri = "mongodb://quizApp:qwerty1010@3.144.188.60:27017/Quiz";
 
 
 Mongoose.connect(uri,)
